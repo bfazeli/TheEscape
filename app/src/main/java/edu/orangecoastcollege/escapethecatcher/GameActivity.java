@@ -105,7 +105,7 @@ public class GameActivity extends Activity {
         // TODO: Determine where to place the Zombie (at game start)
         // TODO: Then, inflate the zombie layout
 
-        int row = 5, col = 6;
+        int row = 5, col = 5;
         // Instantiate a new Zombie object
         zombie = new Zombie();
 
@@ -114,13 +114,20 @@ public class GameActivity extends Activity {
 
         // Let's inflate the zombie layout at specific x and y location
         zombieImageView = (ImageView) layoutInflater.inflate(R.layout.zombie_layout, null);
-        // Set the x coordinate of the imageView
-        
+        // Set the x and y coordinates of the imageView
+        zombieImageView.setX(col * SQUARE + OFFSET);
+        zombieImageView.setY(row * SQUARE + OFFSET);
+        // Display the zombie image view within relative layout
+        activityGameRelativeLayout.addView(zombieImageView);
+
+        // Add the zombie image view to the ArrayList
+        visualObjects.add(zombieImageView);
     }
 
     private void createPlayer() {
         // TODO: Determine where to place the Player (at game start)
         // TODO: Then, inflate the player layout
+        
     }
 
 
