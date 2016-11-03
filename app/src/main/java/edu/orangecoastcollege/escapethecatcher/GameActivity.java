@@ -28,7 +28,7 @@ public class GameActivity extends Activity {
     final int COLUMNS = 7;
     final int ROWS = 8;
     final int gameBoard[][] = {
-            {1, 1, 1, 1, 1, 1, 1},
+            {1, 1, 21, 1, 1, 1, 1},
             {1, 2, 2, 1, 2, 1, 1},
             {1, 2, 2, 2, 2, 2, 1},
             {1, 2, 1, 2, 2, 2, 1},
@@ -99,6 +99,33 @@ public class GameActivity extends Activity {
 
     private void buildGameBoard() {
         // TODO: Inflate the entire game board (obstacles and exit)
+        for (int i = 0; i < ROWS; ++i) {
+            for (int j = 0; j < COLUMNS; ++j) {
+                if (gameBoard[i][j] == 1) {
+                    // Let's inflate the zombie layout at specific x and y location
+                    obstacleImageView = (ImageView) layoutInflater.inflate(R.layout.obstacle_layout, null);
+                    // Set the x and y coordinates of the imageView
+                    obstacleImageView.setX(j * SQUARE + OFFSET);
+                    obstacleImageView.setY(i * SQUARE + OFFSET);
+                    // Display the zombie image view within relative layout
+                    activityGameRelativeLayout.addView(obstacleImageView);
+
+                    // Add the obstacle image view to the ArrayList
+                    visualObjects.add(obstacleImageView);
+                }
+            }
+        }
+
+        // Let's inflate the zombie layout at specific x and y location
+        exitImageView = (ImageView) layoutInflater.inflate(R.layout.exit_layout, null);
+        // Set the x and y coordinates of the imageView
+        exitImageView.setX(6 * SQUARE + OFFSET);
+        exitImageView.setY(5 * SQUARE + OFFSET);
+        // Display the zombie image view within relative layout
+        activityGameRelativeLayout.addView(exitImageView);
+
+        // Add the obstacle image view to the ArrayList
+        visualObjects.add(exitImageView);
     }
 
     private void createZombie() {
@@ -127,7 +154,24 @@ public class GameActivity extends Activity {
     private void createPlayer() {
         // TODO: Determine where to place the Player (at game start)
         // TODO: Then, inflate the player layout
-        
+        int row = 1, col = 1;
+
+        // Instantiate a new Player object
+        player = new Player();
+
+        player.setRow(row);
+        player.setCol(col);
+
+        // Inflate the player layout at x and y location
+        playerImageView = (ImageView) layoutInflater.inflate(R.layout.player_layout, null);
+        // Set the x and y coords
+        playerImageView.setX(col * SQUARE + OFFSET);
+        playerImageView.setY(row * SQUARE + OFFSET);
+        // Display the player image view within relative layout
+        activityGameRelativeLayout.addView(playerImageView);
+
+        // Add the player image view to the ArrayList
+        visualObjects.add(playerImageView);
     }
 
 
