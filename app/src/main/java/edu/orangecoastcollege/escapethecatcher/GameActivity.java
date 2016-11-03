@@ -8,14 +8,16 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements GestureDetector.OnGestureListener {
 
     private GestureDetector aGesture;
 
@@ -28,7 +30,7 @@ public class GameActivity extends Activity {
     final int COLUMNS = 7;
     final int ROWS = 8;
     final int gameBoard[][] = {
-            {1, 1, 21, 1, 1, 1, 1},
+            {1, 1, 1, 1, 1, 1, 1},
             {1, 2, 2, 1, 2, 1, 1},
             {1, 2, 2, 2, 2, 2, 1},
             {1, 2, 1, 2, 2, 2, 1},
@@ -54,6 +56,12 @@ public class GameActivity extends Activity {
     //  WINS AND LOSSES
     private int wins;
     private int losses;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return aGesture.onTouchEvent(event);
+    }
+
     private TextView winsTextView;
     private TextView lossesTextView;
 
@@ -78,6 +86,8 @@ public class GameActivity extends Activity {
         winsTextView.setText(resources.getString(R.string.win) + wins);
         lossesTextView.setText(resources.getString(R.string.losses) + losses);
 
+        // Instantiate the GestureDetector
+        aGesture = new GestureDetector(this, this);
         startNewGame();
     }
 
@@ -126,13 +136,16 @@ public class GameActivity extends Activity {
 
         // Add the obstacle image view to the ArrayList
         visualObjects.add(exitImageView);
+
+        exitRow = 5;
+        exitCol = 6;
     }
 
     private void createZombie() {
         // TODO: Determine where to place the Zombie (at game start)
         // TODO: Then, inflate the zombie layout
 
-        int row = 5, col = 5;
+        int row = 5, col = 3;
         // Instantiate a new Zombie object
         zombie = new Zombie();
 
@@ -154,7 +167,7 @@ public class GameActivity extends Activity {
     private void createPlayer() {
         // TODO: Determine where to place the Player (at game start)
         // TODO: Then, inflate the player layout
-        int row = 1, col = 1;
+        int row = 5, col = 5;
 
         // Instantiate a new Player object
         player = new Player();
@@ -182,8 +195,46 @@ public class GameActivity extends Activity {
         // TODO: Determine which absolute velocity is greater (x or y)
         // TODO: If x is negative, move player left.  Else if x is positive, move player right.
         // TODO: If y is negative, move player down.  Else if y is positive, move player up.
+        String direction = "";
 
-        // TODO: Then move the zombie, using the player's row and column position.
+        if (Math.abs(velocityX) > Math.abs(velocityY))  // X is bigger (MOVE LEFT OR RIGHT)
+        {
+            // Determine if move is LEFT
+            if (velocityX < -FLING_THRESHOLD) direction = "LEFT";
+            else if (velocityX > FLING_THRESHOLD) direction = "RIGHT";
+
+        }
+        else
+        {
+            if (velocityY < -FLING_THRESHOLD) direction = "DOWN";
+            else if (velocityY > FLING_THRESHOLD) direction = "UP";
+        }
+
+        // ONLY move the player IF the direction is NOT an empty string
+        if (!direction.equals(""))
+        {
+            player.move(gameBoard, direction);
+            playerImageView.setX(player.getCol() * SQUARE + OFFSET);
+            playerImageView.setY(player.getRow() * SQUARE + OFFSET);
+        }
+
+        // TODO: Then move the zombie no matter what, using the player's row and column position.
+        zombie.move(gameBoard, player.getCol(), player.getRow());
+        zombieImageView.setX(zombie.getCol() * SQUARE + OFFSET);
+        zombieImageView.setY(zombie.getRow() * SQUARE + OFFSET);
+
+        // Determine if the game is won or lost!!
+        // Game Win
+        if (player.getRow() == exitRow && player.getCol() == exitCol)
+        {
+            Toast.makeText(this, "Congratulations! You TRUMPED the Trump", Toast.LENGTH_SHORT).show();
+            winsTextView.setText(resources.getString(R.string.win) + (++wins));
+        } else if (zombie.getRow() == player.getRow() && zombie.getCol() == player.getCol())
+        {
+            Toast.makeText(this, "WHOMP WHOMP WHOMP", Toast.LENGTH_SHORT).show();
+            lossesTextView.setText(resources.getString(R.string.losses) + (++losses));
+            startNewGame();
+        }
     }
 
 
@@ -205,5 +256,36 @@ public class GameActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent motionEvent) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent motionEvent) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float velocityX, float velocityY) {
+        movePlayer(velocityX, velocityY);
+        return false;
     }
 }
